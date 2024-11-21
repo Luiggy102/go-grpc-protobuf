@@ -49,3 +49,31 @@ func (repo *PostgresRepo) SetStudent(ctx context.Context, student models.Student
 		student.Id, student.Name, student.Age)
 	return err
 }
+
+func (repo *PostgresRepo) GetTest(ctx context.Context, id string) (*models.Test, error) {
+	rows, err := repo.Db.QueryContext(ctx, "select id, name from tests where id = $1", id)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	s := models.Test{}
+	for rows.Next() {
+		err := rows.Scan(&s.Id, &s.Name)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &s, nil
+
+}
+func (repo *PostgresRepo) SetTest(ctx context.Context, test models.Test) error {
+	_, err := repo.Db.ExecContext(ctx,
+		"insert into tests (id, name) values ($1,$2)",
+		test.Id, test.Name)
+	return err
+}
