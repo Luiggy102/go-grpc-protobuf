@@ -9,6 +9,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+var PgUrl = "postgres://postgres:postgres@localhost:54321/postgres?sslmode=disable"
+
 type PostgresRepo struct {
 	Db *sql.DB
 }
@@ -34,7 +36,7 @@ func (repo *PostgresRepo) GetStudent(ctx context.Context, id string) (*models.St
 	}()
 	s := models.Student{}
 	for rows.Next() {
-		err := rows.Scan(&s.Id, s.Name, s.Age)
+		err := rows.Scan(&s.Id, &s.Name, &s.Age)
 		if err != nil {
 			return nil, err
 		}
