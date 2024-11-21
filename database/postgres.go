@@ -61,14 +61,14 @@ func (repo *PostgresRepo) GetTest(ctx context.Context, id string) (*models.Test,
 			log.Fatal(err)
 		}
 	}()
-	s := models.Test{}
+	t := models.Test{}
 	for rows.Next() {
-		err := rows.Scan(&s.Id, &s.Name)
+		err := rows.Scan(&t.Id, &t.Name)
 		if err != nil {
 			return nil, err
 		}
 	}
-	return &s, nil
+	return &t, nil
 
 }
 func (repo *PostgresRepo) SetTest(ctx context.Context, test models.Test) error {

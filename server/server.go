@@ -8,16 +8,16 @@ import (
 	"github.com/Luiggy102/go-grpc-protobuf/studentpb"
 )
 
-type StudentServer struct {
+type Server struct {
 	repo repository.Repository
 	studentpb.UnimplementedStudentServiceServer
 }
 
-func NewStudentServer(repo repository.Repository) *StudentServer {
-	return &StudentServer{repo: repo}
+func NewStudentServer(repo repository.Repository) *Server {
+	return &Server{repo: repo}
 }
 
-func (s *StudentServer) GetStudent(ctx context.Context, req *studentpb.GetStudentRequest) (*studentpb.Student, error) {
+func (s *Server) GetStudent(ctx context.Context, req *studentpb.GetStudentRequest) (*studentpb.Student, error) {
 	// find the student by id
 	student, err := s.repo.GetStudent(ctx, req.Id)
 	if err != nil {
@@ -30,7 +30,7 @@ func (s *StudentServer) GetStudent(ctx context.Context, req *studentpb.GetStuden
 	}, nil
 }
 
-func (s *StudentServer) SetStudent(ctx context.Context, req *studentpb.Student) (*studentpb.SetStudentResponse, error) {
+func (s *Server) SetStudent(ctx context.Context, req *studentpb.Student) (*studentpb.SetStudentResponse, error) {
 
 	// add to the db
 	student := &models.Student{
