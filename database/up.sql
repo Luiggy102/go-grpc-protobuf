@@ -9,5 +9,5 @@ CREATE TABLE students (
 DROP TABLE IF EXISTS tests;
 CREATE TABLE tests (
     id varchar(32) PRIMARY KEY,
-    name varchar(225) not null,
+    name varchar(225) not null
 );

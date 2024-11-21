@@ -26,13 +26,13 @@ func NewTestServer(repo repository.Repository) *TestServer {
 
 // implementation grpc
 func (s *TestServer) GetTest(ctx context.Context, req *testpb.GetTestRequest) (*testpb.Test, error) {
-	student, err := s.repo.GetTest(ctx, req.Id)
+	test, err := s.repo.GetTest(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
 	return &testpb.Test{
-		Id:   student.Id,
-		Name: student.Name,
+		Id:   test.Id,
+		Name: test.Name,
 	}, nil
 }
 func (s *TestServer) SetTest(ctx context.Context, req *testpb.Test) (*testpb.SetTestResponse, error) {
@@ -45,6 +45,7 @@ func (s *TestServer) SetTest(ctx context.Context, req *testpb.Test) (*testpb.Set
 		return nil, err
 	}
 	return &testpb.SetTestResponse{
-		Id: req.Id,
+		Id:   req.Id,
+		Name: req.Name,
 	}, nil
 }
