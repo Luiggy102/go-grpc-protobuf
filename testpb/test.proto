@@ -1,0 +1,21 @@
+syntax = "proto3";
+package test;
+// go package
+option go_package = "github.com/Luiggy102/go-grpc-protobuf;testpb";
+
+// test strucs
+message Test {
+  string id = 1;
+  string name = 2;
+}
+message GetTestRequest { string id = 1; }
+message SetTestResponse {
+  string id = 1;
+  string name = 2;
+}
+
+// Test service
+service TestService {
+  rpc GetTest(GetTestRequest) returns (Test);
+  rpc SetTest(Test) returns (SetTestResponse);
+}
