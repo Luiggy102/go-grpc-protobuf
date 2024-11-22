@@ -118,7 +118,7 @@ func (repo *PostgresRepo) GetStudentPerTest(ctx context.Context, testId string) 
 
 func (repo *PostgresRepo) GetQuestionsPerTest(ctx context.Context, testId string) ([]*models.Question, error) {
 	rows, err := repo.Db.QueryContext(ctx,
-		"SELECT id, question FROM question WHERE test_id = $1)",
+		"SELECT id, question FROM questions WHERE test_id = $1",
 		testId)
 	if err != nil {
 		return nil, err
