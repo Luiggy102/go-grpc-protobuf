@@ -31,7 +31,7 @@ func main() {
 
 	// DoUnary(c)
 	// DoClientStreaming(c)
-	DoServerStreaming(c)
+	// DoServerStreaming(c)
 	DoBidirecitonalStreaming(c)
 }
 
@@ -101,5 +101,44 @@ func DoServerStreaming(c testpb.TestServiceClient) {
 }
 func DoBidirecitonalStreaming(c testpb.TestServiceClient) {
 	// take test
+
+	req := &testpb.TakeTestRequest{Answer: "answer"}
+
+	numberOfQuestion := 4
+	waitchannel := make(chan struct{})
+
+	stream, err := c.TakeTest(context.Background())
+	if err != nil {
+		log.Fatalln("error while calling TakeTest", err)
+	}
+
+	// client stremaing goroutine (send the answers)
+	go func() {
+		for i := 0; i < numberOfQuestion; i++ {
+			err = stream.Send(req)
+			if err != nil {
+				log.Fatalln("error while sending stremaing:", err)
+				break
+			}
+			time.Sleep(time.Second * 1)
+		}
+	}()
+
+	// server stremaing goroutine (undefined responses)
+	go func() {
+		for {
+			res, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalln("error while receiving response:", err)
+				break
+			}
+			log.Println("response from server:", res)
+		}
+		close(waitchannel)
+	}()
+	<-waitchannel
 
 }
