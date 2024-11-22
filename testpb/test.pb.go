@@ -388,7 +388,7 @@ func (x *GetStudentPerTestRequest) GetTestId() string {
 	return ""
 }
 
-// TakeTestRequest (an answer)
+// get an answer
 type TakeTestRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

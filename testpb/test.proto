@@ -35,6 +35,9 @@ message EnrollmentRequest {
 // getStudentPerTest (test_id)
 message GetStudentPerTestRequest { string test_id = 1; }
 
+// get an answer
+message TakeTestRequest { string answer = 1; }
+
 // Test service
 service TestService {
   // unary rpc
@@ -44,6 +47,8 @@ service TestService {
   rpc SetQuestion(stream Question) returns (SetQuestionResponse);
   rpc EnrollStudent(stream EnrollmentRequest) returns (SetQuestionResponse);
   // server streaming
-  rpc getStudentPerTest(GetStudentPerTestRequest)
+  rpc GetStudentPerTest(GetStudentPerTestRequest)
       returns (stream student.Student);
+  // bidirectional streaming
+  rpc TakeTest(stream TakeTestRequest) returns (stream Question);
 }

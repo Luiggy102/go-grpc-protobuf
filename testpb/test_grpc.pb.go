@@ -42,7 +42,7 @@ type TestServiceClient interface {
 	EnrollStudent(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[EnrollmentRequest, SetQuestionResponse], error)
 	// server streaming
 	GetStudentPerTest(ctx context.Context, in *GetStudentPerTestRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[studentpb.Student], error)
-	// Bidirectional streaming
+	// bidirectional streaming
 	TakeTest(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[TakeTestRequest, Question], error)
 }
 
@@ -146,7 +146,7 @@ type TestServiceServer interface {
 	EnrollStudent(grpc.ClientStreamingServer[EnrollmentRequest, SetQuestionResponse]) error
 	// server streaming
 	GetStudentPerTest(*GetStudentPerTestRequest, grpc.ServerStreamingServer[studentpb.Student]) error
-	// Bidirectional streaming
+	// bidirectional streaming
 	TakeTest(grpc.BidiStreamingServer[TakeTestRequest, Question]) error
 	mustEmbedUnimplementedTestServiceServer()
 }

@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"io"
+	"log"
 	"time"
 
 	"github.com/Luiggy102/go-grpc-protobuf/models"
@@ -128,4 +129,46 @@ func (s *TestServer) GetStudentPerTest(req *testpb.GetStudentPerTestRequest, str
 	}
 	// all completed
 	return nil
+}
+
+// bidirectional streaming
+//
+//	rpc TakeTest(stream TakeTestRequest) returns (stream Question);
+func (s *TestServer) TakeTest(stream testpb.TestService_TakeTestServer) error {
+	questions, err := s.repo.GetQuestionsPerTest(context.Background(), "t1")
+	if err != nil {
+		return err
+	}
+	i := 0
+	currentQuestion := models.Question{}
+	for {
+		// get current question
+		if i < len(questions) {
+			currentQuestion = *questions[i]
+		}
+
+		// server streaming
+		if i <= len(questions) {
+			questionToSend := &testpb.Question{
+				Id:       currentQuestion.Id,
+				Question: currentQuestion.Question,
+			}
+			err = stream.Send(questionToSend)
+			if err != nil {
+				return err
+			}
+			i++
+		}
+
+		// client streaming
+		msg, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		// log the recieved Answer
+		log.Println("Answer:", msg.GetAnswer())
+	}
 }

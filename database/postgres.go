@@ -93,7 +93,7 @@ func (repo *PostgresRepo) EnrollStudents(ctx context.Context, enrollment *models
 }
 func (repo *PostgresRepo) GetStudentPerTest(ctx context.Context, testId string) ([]*models.Student, error) {
 	rows, err := repo.Db.QueryContext(ctx,
-		"select id, name, age from students where id in (select student_id from enrollments where test_id = $1)",
+		"SELECT id, name, age FROM students WHERE id IN (SELECT student_id FROM enrollments WHERE test_id = $1)",
 		testId)
 	if err != nil {
 		return nil, err
@@ -114,4 +114,29 @@ func (repo *PostgresRepo) GetStudentPerTest(ctx context.Context, testId string) 
 		students = append(students, &s)
 	}
 	return students, nil
+}
+
+func (repo *PostgresRepo) GetQuestionsPerTest(ctx context.Context, testId string) ([]*models.Question, error) {
+	rows, err := repo.Db.QueryContext(ctx,
+		"SELECT id, question FROM question WHERE test_id = $1)",
+		testId)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	questions := []*models.Question{}
+	for rows.Next() {
+		q := models.Question{}
+		err = rows.Scan(&q.Id, &q.Question)
+		if err != nil {
+			return nil, err
+		}
+		questions = append(questions, &q)
+	}
+	return questions, nil
 }
