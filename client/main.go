@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"time"
 
@@ -27,8 +28,9 @@ func main() {
 	c := testpb.NewTestServiceClient(cc)
 
 	// different grpc methods
-	DoUnary(c)
-	DoClientStreaming(c)
+
+	// DoUnary(c)
+	// DoClientStreaming(c)
 	DoServerStreaming(c)
 	DoBidirecitonalStreaming(c)
 }
@@ -47,9 +49,9 @@ func DoUnary(c testpb.TestServiceClient) {
 func DoClientStreaming(c testpb.TestServiceClient) {
 	// set questions
 	questions := []*testpb.Question{
-		{Id: "q11", Question: "question 11", Answer: "answer 11", TestId: "t1"},
-		{Id: "q12", Question: "question 12", Answer: "answer 12", TestId: "t1"},
-		{Id: "q13", Question: "question 13", Answer: "answer 13", TestId: "t1"},
+		{Id: "q14", Question: "question 14", Answer: "answer 14", TestId: "t1"},
+		{Id: "q15", Question: "question 15", Answer: "answer 15", TestId: "t1"},
+		{Id: "q16", Question: "question 16", Answer: "answer 16", TestId: "t1"},
 	}
 
 	stream, err := c.SetQuestion(context.Background())
@@ -78,7 +80,24 @@ func DoClientStreaming(c testpb.TestServiceClient) {
 }
 func DoServerStreaming(c testpb.TestServiceClient) {
 	// get student per test
+	req := &testpb.GetStudentPerTestRequest{TestId: "t1"}
 
+	stream, err := c.GetStudentPerTest(context.Background(), req)
+	if err != nil {
+		log.Fatalln("error while calling GetStudentPerTest", err)
+	}
+
+	// catch the server response
+	for {
+		msg, err := stream.Recv()
+		if err == io.EOF { // completed
+			break
+		}
+		if err != nil {
+			log.Fatalln("error while receiving response:", err)
+		}
+		log.Println("response from server:", msg)
+	}
 }
 func DoBidirecitonalStreaming(c testpb.TestServiceClient) {
 	// take test
