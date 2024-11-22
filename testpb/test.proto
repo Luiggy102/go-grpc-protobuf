@@ -1,7 +1,9 @@
 syntax = "proto3";
 package test;
+// import student
+import "studentpb/student.proto";
 // go package
-option go_package = "github.com/Luiggy102/go-grpc-protobuf;testpb";
+option go_package = "github.com/Luiggy102/go-grpc-protobuf/testpb";
 
 // test strucs
 message Test {
@@ -24,6 +26,15 @@ message Question {
 
 message SetQuestionResponse { bool ok = 1; }
 
+// enroll students
+message EnrollmentRequest {
+  string test_id = 1;
+  string student_id = 2;
+}
+
+// getStudentPerTest (test_id)
+message GetStudentPerTestRequest { string test_id = 1; }
+
 // Test service
 service TestService {
   // unary rpc
@@ -31,4 +42,8 @@ service TestService {
   rpc SetTest(Test) returns (SetTestResponse);
   // client streaming
   rpc SetQuestion(stream Question) returns (SetQuestionResponse);
+  rpc EnrollStudent(stream EnrollmentRequest) returns (SetQuestionResponse);
+  // server streaming
+  rpc getStudentPerTest(GetStudentPerTestRequest)
+      returns (stream student.Student);
 }

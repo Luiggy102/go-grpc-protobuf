@@ -1,7 +1,7 @@
 syntax = "proto3";
 package student;
 // go package
-option go_package = "github.com/Luiggy102/go-grpc-protobuf;studentpb";
+option go_package = "github.com/Luiggy102/go-grpc-protobuf/studentpb";
 
 // Student strucs
 message Student {

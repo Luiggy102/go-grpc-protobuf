@@ -3,9 +3,11 @@ package server
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/Luiggy102/go-grpc-protobuf/models"
 	"github.com/Luiggy102/go-grpc-protobuf/repository"
+	"github.com/Luiggy102/go-grpc-protobuf/studentpb"
 	"github.com/Luiggy102/go-grpc-protobuf/testpb"
 )
 
@@ -79,4 +81,51 @@ func (s *TestServer) SetQuestion(stream testpb.TestService_SetQuestionServer) er
 			return stream.SendAndClose(&testpb.SetQuestionResponse{Ok: false})
 		}
 	}
+}
+
+// rpc EnrollStudent(stream EnrollmentRequest) returns (SetQuestionResponse);
+func (s *TestServer) EnrollStudent(stream testpb.TestService_EnrollStudentServer) error {
+	for {
+		msg, err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(&testpb.SetQuestionResponse{Ok: true})
+		}
+		if err != nil {
+			return err
+		}
+		// send to the db
+		err = s.repo.EnrollStudents(context.Background(), &models.Enrollment{
+			StudentId: msg.GetStudentId(),
+			TestId:    msg.GetTestId(),
+		})
+		if err != nil {
+			return stream.SendAndClose(&testpb.SetQuestionResponse{Ok: false})
+		}
+	}
+}
+
+// server streaming
+// rpc GetStudentPerTest(GetStudentPerTestRequest) returns (stream student.Student);
+func (s *TestServer) GetStudentPerTest(req *testpb.GetStudentPerTestRequest, stream testpb.TestService_GetStudentPerTestServer) error {
+	students, err := s.repo.GetStudentPerTest(context.Background(), req.GetTestId())
+	if err != nil {
+		return err
+	}
+	// loop over the student and send to the stream
+	for _, s := range students {
+		// change the tipe
+		student := &studentpb.Student{
+			Id:   s.Id,
+			Name: s.Name,
+			Age:  s.Age,
+		}
+		// sent to the stream
+		err = stream.Send(student)
+		time.Sleep(time.Second * 2) //simulate
+		if err != nil {
+			return err
+		}
+	}
+	// all completed
+	return nil
 }
