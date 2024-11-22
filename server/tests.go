@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"io"
 
 	"github.com/Luiggy102/go-grpc-protobuf/models"
 	"github.com/Luiggy102/go-grpc-protobuf/repository"
@@ -48,4 +49,34 @@ func (s *TestServer) SetTest(ctx context.Context, req *testpb.Test) (*testpb.Set
 		Id:   req.Id,
 		Name: req.Name,
 	}, nil
+}
+
+// rpc client streaming
+//
+//	service TestService {
+//	  rpc SetQuestion(stream Question) returns (SetQuestionResponse);
+//	}
+func (s *TestServer) SetQuestion(stream testpb.TestService_SetQuestionServer) error {
+	for {
+		// recibe the msg
+		msg, err := stream.Recv()
+		if err == io.EOF { // the client stops
+			// send the response ok
+			return stream.SendAndClose(&testpb.SetQuestionResponse{Ok: true})
+		}
+		if err != nil {
+			return nil
+		}
+		// send the msg to the db
+		err = s.repo.SetQuestion(context.Background(), &models.Question{
+			Id:       msg.GetId(),
+			Question: msg.GetQuestion(),
+			Answer:   msg.GetAnswer(),
+			TestId:   msg.GetTestId(),
+		})
+		// if any error send a ok = false response
+		if err != nil {
+			return stream.SendAndClose(&testpb.SetQuestionResponse{Ok: false})
+		}
+	}
 }

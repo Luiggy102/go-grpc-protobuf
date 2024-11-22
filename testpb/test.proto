@@ -14,8 +14,21 @@ message SetTestResponse {
   string name = 2;
 }
 
+// questions strucs
+message Question {
+  string id = 1;
+  string question = 2;
+  string answer = 3;
+  string test_id = 4;
+}
+
+message SetQuestionResponse { bool ok = 1; }
+
 // Test service
 service TestService {
+  // unary rpc
   rpc GetTest(GetTestRequest) returns (Test);
   rpc SetTest(Test) returns (SetTestResponse);
+  // client streaming
+  rpc SetQuestion(stream Question) returns (SetQuestionResponse);
 }
