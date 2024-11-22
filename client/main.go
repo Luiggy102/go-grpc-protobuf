@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/Luiggy102/go-grpc-protobuf/testpb"
 	"google.golang.org/grpc"
@@ -45,6 +46,34 @@ func DoUnary(c testpb.TestServiceClient) {
 }
 func DoClientStreaming(c testpb.TestServiceClient) {
 	// set questions
+	questions := []*testpb.Question{
+		{Id: "q11", Question: "question 11", Answer: "answer 11", TestId: "t1"},
+		{Id: "q12", Question: "question 12", Answer: "answer 12", TestId: "t1"},
+		{Id: "q13", Question: "question 13", Answer: "answer 13", TestId: "t1"},
+	}
+
+	stream, err := c.SetQuestion(context.Background())
+	if err != nil {
+		log.Fatalln("error while calling SetQuestion", err)
+	}
+
+	// send the stream
+	for _, q := range questions {
+		log.Println("sending question:", q.Id)
+		err = stream.Send(q)
+		if err != nil {
+			log.Fatalln("error while stream", err)
+		}
+		time.Sleep(time.Second * 2)
+	}
+
+	// close the coneciton and get the answer
+	msg, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatalln("error while receiving response:", err)
+	}
+
+	log.Println("response from server:", msg)
 
 }
 func DoServerStreaming(c testpb.TestServiceClient) {
